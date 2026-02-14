@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My Daily Routine</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3d2b1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="My Daily Routine">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --cream:#f5f0e8;--warm-white:#faf7f2;--sand:#e8dcc8;--tan:#c8b89a;
+    --brown:#8b6f47;--dark-brown:#5c4a32;--espresso:#3d2b1f;
+    --terracotta:#c4714b;--sage:#7a9e7e;--deep-sage:#5a7d5e;
+    --muted-gold:#c9a84c;--morning-accent:#e8a045;
+    --evening-accent:#7b6fa0;--evening-light:#b8aed4;
+    --text-main:#3d2b1f;--text-soft:#7a6555;--text-muted:#a89880;
+    --shadow:rgba(61,43,31,0.12);--shadow-deep:rgba(61,43,31,0.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--cream);font-family:'Lato',sans-serif;color:var(--text-main);min-height:100vh;
+    background-image:radial-gradient(ellipse at 15% 0%,rgba(200,160,76,.12) 0%,transparent 50%),
+    radial-gradient(ellipse at 85% 100%,rgba(122,158,126,.1) 0%,transparent 50%);}
+  .app-header{background:linear-gradient(135deg,var(--dark-brown) 0%,var(--espresso) 100%);
+    padding:18px 20px 14px;text-align:center;position:sticky;top:0;z-index:100;
+    box-shadow:0 4px 20px var(--shadow-deep);}
+  .app-header h1{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--cream);
+    letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .app-header .date-display{font-size:.78rem;color:var(--tan);margin-top:3px;
+    letter-spacing:.08em;text-transform:uppercase;}
+  .day-nav{background:var(--espresso);display:flex;justify-content:center;gap:4px;
+    padding:8px 12px;overflow-x:auto;scrollbar-width:none;border-bottom:2px solid var(--dark-brown);}
+  .day-nav::-webkit-scrollbar{display:none;}
+  .day-btn{background:transparent;border:1.5px solid rgba(200,184,154,.2);color:var(--tan);
+    font-family:'Lato',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;padding:5px 10px;border-radius:20px;cursor:pointer;
+    transition:all .25s ease;white-space:nowrap;position:relative;}
+  .day-btn:hover{background:rgba(200,184,154,.1);color:var(--cream);}
+  .day-btn.active{background:var(--terracotta);border-color:var(--terracotta);color:white;
+    box-shadow:0 2px 10px rgba(196,113,75,.45);}
+  .day-btn .dot{display:inline-block;width:5px;height:5px;background:var(--sage);
+    border-radius:50%;position:absolute;top:3px;right:3px;}
+  .main-container{max-width:640px;margin:0 auto;padding:16px 14px 100px;}
+  .full-day-banner{background:linear-gradient(135deg,var(--sage),var(--deep-sage));
+    border-radius:16px;padding:20px;text-align:center;margin-bottom:20px;display:none;
+    animation:popIn .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 6px 24px rgba(90,125,94,.35);}
+  .full-day-banner.show{display:block;}
+  .full-day-banner .banner-emoji{font-size:2.2rem;display:block;margin-bottom:6px;}
+  .full-day-banner h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:white;margin-bottom:4px;}
+  .full-day-banner p{font-size:.85rem;color:rgba(255,255,255,.85);}
+  .session-tracker{border-radius:14px;padding:14px 16px;margin-bottom:14px;
+    display:flex;align-items:center;gap:12px;transition:box-shadow .3s;}
+  .session-tracker.morning-tracker{background:linear-gradient(135deg,#fff8ee,#fef3e2);
+    border:1.5px solid rgba(232,160,69,.25);box-shadow:0 3px 12px rgba(232,160,69,.1);}
+  .session-tracker.evening-tracker{background:linear-gradient(135deg,#f5f3fa,#eeebf5);
+    border:1.5px solid rgba(123,111,160,.25);box-shadow:0 3px 12px rgba(123,111,160,.1);}
+  .session-tracker.complete{background:linear-gradient(135deg,#e8f4ea,#dceedd)!important;
+    border-color:rgba(90,125,94,.4)!important;box-shadow:0 3px 16px rgba(90,125,94,.2)!important;}
+  .tracker-icon{font-size:1.6rem;flex-shrink:0;}
+  .tracker-info{flex:1;min-width:0;}
+  .tracker-label{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:600;
+    color:var(--dark-brown);margin-bottom:3px;}
+  .tracker-nudge{font-size:.76rem;color:var(--text-soft);font-style:italic;margin-bottom:6px;line-height:1.4;}
+  .tracker-bar-wrap{background:rgba(61,43,31,.08);border-radius:10px;height:7px;overflow:hidden;}
+  .tracker-bar-fill{height:100%;border-radius:10px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .morning-tracker .tracker-bar-fill{background:linear-gradient(90deg,var(--morning-accent),var(--muted-gold));}
+  .evening-tracker .tracker-bar-fill{background:linear-gradient(90deg,var(--evening-accent),var(--evening-light));}
+  .session-tracker.complete .tracker-bar-fill{background:linear-gradient(90deg,var(--sage),var(--deep-sage));}
+  .tracker-count{font-size:.72rem;font-weight:700;color:var(--text-muted);margin-top:4px;}
+  .time-block{background:var(--warm-white);border-radius:16px;margin-bottom:12px;overflow:hidden;
+    box-shadow:0 2px 12px var(--shadow);border:1px solid rgba(200,184,154,.25);transition:box-shadow .3s;}
+  .time-block:hover{box-shadow:0 4px 18px var(--shadow-deep);}
+  .block-header{display:flex;align-items:center;justify-content:space-between;
+    padding:12px 14px 10px;border-bottom:1px solid var(--sand);}
+  .block-time{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);}
+  .block-nudge-text{font-size:.72rem;color:var(--text-soft);font-style:italic;text-align:right;max-width:55%;line-height:1.3;}
+  .block-progress-wrap{padding:0 14px 10px;background:var(--warm-white);}
+  .block-progress-bar{background:var(--sand);border-radius:8px;height:5px;overflow:hidden;}
+  .block-progress-fill{height:100%;border-radius:8px;transition:width .4s ease;}
+  .morning-block .block-progress-fill{background:linear-gradient(90deg,var(--morning-accent),var(--muted-gold));}
+  .evening-block .block-progress-fill{background:linear-gradient(90deg,var(--evening-accent),var(--evening-light));}
+  .checklist-item{display:flex;align-items:flex-start;gap:10px;padding:9px 14px;
+    border-top:1px solid rgba(200,184,154,.15);cursor:pointer;transition:background .2s;user-select:none;}
+  .checklist-item:first-child{border-top:none;}
+  .checklist-item:hover{background:rgba(200,184,154,.1);}
+  .item-checkbox{width:20px;height:20px;border-radius:6px;border:2px solid var(--tan);flex-shrink:0;
+    margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .25s ease;}
+  .checklist-item.checked .item-checkbox{background:var(--sage);border-color:var(--sage);}
+  .check-mark{color:white;font-size:11px;font-weight:900;opacity:0;transform:scale(0);
+    transition:all .2s cubic-bezier(.34,1.56,.64,1);}
+  .checklist-item.checked .check-mark{opacity:1;transform:scale(1);}
+  .item-label{font-size:.88rem;line-height:1.4;color:var(--text-main);transition:all .4s ease;padding-top:1px;}
+  .item-sub{font-size:.76rem;color:var(--text-muted);margin-top:2px;font-style:italic;}
+  .checklist-item.checked .item-label{text-decoration:line-through;color:var(--text-muted);opacity:.5;}
+  .checklist-item.checked{opacity:.65;}
+  .block-complete-banner{margin:8px 14px 12px;background:linear-gradient(135deg,var(--sage),var(--deep-sage));
+    border-radius:10px;padding:10px 14px;display:none;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
+    text-align:center;color:white;font-size:.83rem;font-family:'Playfair Display',serif;font-style:italic;}
+  .block-complete-banner.show{display:block;}
+  .session-label{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;
+    color:var(--dark-brown);margin:22px 0 10px;display:flex;align-items:center;gap:8px;}
+  .session-label::after{content:'';flex:1;height:1px;background:var(--sand);}
+
+  /* NOTES */
+  .notes-section{background:var(--warm-white);border-radius:16px;overflow:hidden;
+    box-shadow:0 2px 12px var(--shadow);border:1px solid rgba(200,184,154,.25);margin-top:8px;}
+  .notes-header{display:flex;align-items:center;justify-content:space-between;
+    padding:13px 16px 11px;border-bottom:1px solid var(--sand);
+    background:linear-gradient(135deg,#fdf9f3,#faf5ec);}
+  .notes-title{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:600;
+    color:var(--dark-brown);display:flex;align-items:center;gap:6px;}
+  .notes-clear-btn{background:transparent;border:1.5px solid var(--tan);color:var(--text-muted);
+    font-family:'Lato',sans-serif;font-size:.7rem;letter-spacing:.05em;padding:4px 12px;
+    border-radius:20px;cursor:pointer;transition:all .2s;}
+  .notes-clear-btn:hover{background:var(--terracotta);border-color:var(--terracotta);color:white;}
+  .notes-body{padding:12px 14px 14px;}
+  .notes-textarea{width:100%;min-height:120px;background:var(--cream);border:1.5px solid var(--sand);
+    border-radius:10px;padding:12px 14px;font-family:'Lato',sans-serif;font-size:.88rem;
+    color:var(--text-main);line-height:1.6;resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s;}
+  .notes-textarea::placeholder{color:var(--text-muted);font-style:italic;}
+  .notes-textarea:focus{border-color:var(--tan);box-shadow:0 0 0 3px rgba(200,184,154,.2);}
+  .notes-saved{font-size:.7rem;color:var(--sage);text-align:right;margin-top:6px;
+    height:14px;font-style:italic;opacity:0;transition:opacity .4s;}
+  .notes-saved.show{opacity:1;}
+
+  .reset-area{text-align:center;margin-top:20px;margin-bottom:10px;}
+  .reset-btn{background:transparent;border:1.5px solid var(--tan);color:var(--text-soft);
+    font-family:'Lato',sans-serif;font-size:.8rem;letter-spacing:.06em;padding:9px 22px;
+    border-radius:24px;cursor:pointer;transition:all .25s;}
+  .reset-btn:hover{background:var(--terracotta);border-color:var(--terracotta);color:white;
+    box-shadow:0 3px 12px rgba(196,113,75,.3);}
+  @keyframes popIn{0%{transform:scale(.85);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  @keyframes fadeSlideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .day-content{animation:fadeSlideIn .3s ease;}
+</style>
+</head>
+<body>
+<div class="app-header">
+  <h1>✅ My Daily Routine</h1>
+  <div class="date-display" id="date-display"></div>
+</div>
+<div class="day-nav" id="day-nav"></div>
+<div class="main-container"><div id="day-content"></div></div>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MN_WD=["You're doing amazing. One step at a time. 🌅","This morning is yours. Make it gentle. ☕","Small rituals, big peace. You've got this. 🌿","Every morning you choose you. Keep going. 🌸","Slow mornings make for strong days. 💛"];
+const MN_WE=["A slow morning is a gift. Savour it. 🌿","No rush. The day unfolds gently. 🍵","Weekend magic starts right here. ✨","Rest is part of the routine too. 🌸"];
+const EN_WD=["You made it through the day. Wind down gently. 🌙","The evening is yours to restore. 🕯️","Rest is productive. You've earned it. 💛","Let the day go. Tomorrow is fresh. 🌿","Settling in. You did well today. 🌙"];
+const EN_WE=["A peaceful evening to close a good day. 🌙","Ease into the night. You deserve rest. 🕯️","The weekend was well spent. Rest now. 🌸","Gentle evenings for a gentle soul. ✨"];
+const BMN=["Rise softly. ☀️","The quiet before the day is sacred. 🌿","Sip. Breathe. Begin. ☕","You're already doing it. 💛","Take your time. 🌸","One thing at a time. 🌻"];
+const BEN=["Let the day settle. 🌙","The hardest part is done. 🕯️","Wind down. You've earned it. 🌿","Soft evenings restore us. 💛","Almost time to rest. ✨","Peace is close. 🌸"];
+
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function isWE(d){return d==='Saturday'||d==='Sunday';}
+function sNudge(s,d){return s==='morning'?pick(isWE(d)?MN_WE:MN_WD):pick(isWE(d)?EN_WE:EN_WD);}
+
+function getMB(){return[
+  {time:"5:20 – 5:50",items:[{l:"Wake up"},{l:"Open curtains"},{l:"Music on"},{l:"Doggo cuddles 🐶"}]},
+  {time:"5:50 – 6:05",items:[{l:"Get up"},{l:"Make coffee ☕"},{l:"Make bed"}]},
+  {time:"6:05 – 6:35",items:[{l:"Get dressed"},{l:"Hair"},{l:"Brush teeth"},{l:"Skincare"},{l:"Makeup"},{l:"Drink coffee ☕"}]},
+  {time:"6:35 – 6:40",items:[{l:"Feed dogs 🐶"}]},
+  {time:"6:40 – 7:00",items:[{l:"Make breakfast",s:"Musli · Otees · Weetbix · Rusks · PB Flapjacks"},{l:"Eat outside / breathe / exist 🌿"}]},
+  {time:"7:00",items:[{l:"Leave for work 👜"}]}
+];}
+
+function getEB(day){
+  const bu=['Monday','Wednesday','Friday'].includes(day);
+  const mt=['Saturday','Sunday'].includes(day);
+  const wa=['Thursday','Sunday'].includes(day);
+  const hw=['Wednesday','Sunday'].includes(day);
+  const sh=day==='Friday';
+  const bc=day==='Sunday';
+  const b1=[];if(wa)b1.push({l:"Start washing load 🧺"});b1.push({l:"Dog walks 🐶"});
+  const b2=[];if(wa)b2.push({l:"Switch washing load 🔄"});b2.push({l:"Sweep"});
+  if(bc)b2.push({l:"Wash floors, wipe counters & cupboards, dust, toilets 🧹"});
+  b2.push({l:"Prep dinner 🍽️"});
+  const b3=[];b3.push({l:"Dinner 🍽️"});
+  if(bu)b3.push({l:"Feed dogs – 1 tbsp butternut 🐶🥣"});
+  else if(mt)b3.push({l:"Feed dogs – MTies 🐶"});
+  else b3.push({l:"Feed dogs 🐶"});
+  b3.push({l:"TV or calming activity 📺",s:"Rest · Digestion · Decompression"});
+  const b4=[];b4.push({l:"Dishes"});
+  if(hw)b4.push({l:"Shower & hair wash 🚿"});
+  else if(sh)b4.push({l:"Shower 🚿"});
+  b4.push({l:"Skincare ✨"});b4.push({l:"Dim lights 🕯️"});
+  return[
+    {time:"5:00",items:b1},{time:"5:45",items:b2},{time:"6:30",items:b3},{time:"8:10",items:b4},
+    {time:"9:00",items:[{l:"Bedtime routine 🌙"},{l:"Lay clothes out for AM 👗"},{l:"Doggo cuddles 🐶"},{l:"Sleep podcast / gentle content 🎧"}]},
+    {time:"10:00",items:[{l:"Lights out 🌙"}]}
+  ];
+}
+
+function sk(d){return'routine-'+d+'-v3';}
+function nk(d){return'notes-'+d+'-v1';}
+function loadSt(d){try{return JSON.parse(localStorage.getItem(sk(d)))||{};}catch{return{};}}
+function saveSt(d,s){localStorage.setItem(sk(d),JSON.stringify(s));}
+function loadN(d){return localStorage.getItem(nk(d))||'';}
+function saveN(d,t){localStorage.setItem(nk(d),t);}
+
+let day=null,state={},ntimer=null;
+
+function ik(s,bi,ii){return s+'-'+bi+'-'+ii;}
+function cItems(bl){return bl.reduce((s,b)=>s+b.items.length,0);}
+function cDone(s,bl){let n=0;bl.forEach((b,bi)=>b.items.forEach((_,ii)=>{if(state[ik(s,bi,ii)])n++;}));return n;}
+
+function renderDay(d){
+  const mb=getMB(),eb=getEB(d);
+  const mt=cItems(mb),et=cItems(eb);
+  const md=cDone('morning',mb),ed=cDone('evening',eb);
+  const mp=mt?Math.round(md/mt*100):0,ep=et?Math.round(ed/et*100):0;
+  const full=md===mt&&ed===et;
+  const notes=loadN(d);
+  let h='';
+
+  h+=`<div class="full-day-banner${full?' show':''}" id="fdb">
+    <span class="banner-emoji">🌟</span><h2>Day Complete!</h2>
+    <p>You've done everything today. Rest well — you've earned it. 🌿</p></div>`;
+
+  h+=`<p class="session-label">☀️ Morning Routine</p>`;
+  h+=`<div class="session-tracker morning-tracker${md===mt?' complete':''}" id="tm">
+    <div class="tracker-icon">☀️</div><div class="tracker-info">
+    <div class="tracker-label">Morning Session</div>
+    <div class="tracker-nudge">${sNudge('morning',d)}</div>
+    <div class="tracker-bar-wrap"><div class="tracker-bar-fill" id="bm" style="width:${mp}%"></div></div>
+    <div class="tracker-count" id="cm">${md} of ${mt} complete</div></div></div>`;
+
+  mb.forEach((bl,bi)=>{
+    const bt=bl.items.length,bd=bl.items.filter((_,ii)=>state[ik('morning',bi,ii)]).length;
+    const bp=bt?Math.round(bd/bt*100):0;
+    h+=`<div class="time-block morning-block"><div class="block-header">
+      <span class="block-time">${bl.time}</span>
+      <span class="block-nudge-text">${pick(BMN)}</span></div>
+      <div class="block-progress-wrap"><div class="block-progress-bar">
+      <div class="block-progress-fill" id="bpm${bi}" style="width:${bp}%"></div></div></div>`;
+    bl.items.forEach((it,ii)=>{h+=ri('morning',bi,ii,it,!!state[ik('morning',bi,ii)]);});
+    h+=`<div class="block-complete-banner${bd===bt&&bt>0?' show':''}" id="bcm${bi}">✨ Block complete! Lovely work.</div></div>`;
+  });
+
+  h+=`<p class="session-label">🌙 Evening Routine</p>`;
+  h+=`<div class="session-tracker evening-tracker${ed===et?' complete':''}" id="te">
+    <div class="tracker-icon">🌙</div><div class="tracker-info">
+    <div class="tracker-label">Evening Session</div>
+    <div class="tracker-nudge">${sNudge('evening',d)}</div>
+    <div class="tracker-bar-wrap"><div class="tracker-bar-fill" id="be" style="width:${ep}%"></div></div>
+    <div class="tracker-count" id="ce">${ed} of ${et} complete</div></div></div>`;
+
+  eb.forEach((bl,bi)=>{
+    const bt=bl.items.length,bd=bl.items.filter((_,ii)=>state[ik('evening',bi,ii)]).length;
+    const bp=bt?Math.round(bd/bt*100):0;
+    h+=`<div class="time-block evening-block"><div class="block-header">
+      <span class="block-time">${bl.time}</span>
+      <span class="block-nudge-text">${pick(BEN)}</span></div>
+      <div class="block-progress-wrap"><div class="block-progress-bar">
+      <div class="block-progress-fill" id="bpe${bi}" style="width:${bp}%"></div></div></div>`;
+    bl.items.forEach((it,ii)=>{h+=ri('evening',bi,ii,it,!!state[ik('evening',bi,ii)]);});
+    h+=`<div class="block-complete-banner${bd===bt&&bt>0?' show':''}" id="bce${bi}">🌙 Block complete! Rest is near.</div></div>`;
+  });
+
+  h+=`<p class="session-label">📝 Notes & To-Dos</p>`;
+  h+=`<div class="notes-section">
+    <div class="notes-header">
+      <div class="notes-title">🗒️ ${d}'s Notes</div>
+      <button class="notes-clear-btn" onclick="clearNotes()">Clear notes</button>
+    </div>
+    <div class="notes-body">
+      <textarea class="notes-textarea" id="nta" placeholder="Jot down anything that comes up — random to-dos, reminders, things not to forget... it'll be here when you come back. 🌿" oninput="onNI()">${notes}</textarea>
+      <div class="notes-saved" id="ns">✓ Saved</div>
+    </div></div>`;
+
+  h+=`<div class="reset-area"><button class="reset-btn" onclick="resetDay()">↩ Reset Today's Checklist</button></div>`;
+
+  const c=document.getElementById('day-content');
+  c.innerHTML=h;c.className='day-content';
+  c.style.animation='none';c.offsetHeight;c.style.animation='';
+}
+
+function ri(s,bi,ii,it,ch){
+  const k=ik(s,bi,ii);
+  return `<div class="checklist-item${ch?' checked':''}" id="i${k}" onclick="tog('${s}',${bi},${ii})">
+    <div class="item-checkbox"><span class="check-mark">✓</span></div>
+    <div><div class="item-label">${it.l}</div>${it.s?`<div class="item-sub">${it.s}</div>`:''}</div></div>`;
+}
+
+function onNI(){
+  const t=document.getElementById('nta').value;
+  saveN(day,t);
+  const ns=document.getElementById('ns');
+  if(ns){ns.classList.add('show');clearTimeout(ntimer);ntimer=setTimeout(()=>ns.classList.remove('show'),2000);}
+}
+
+function clearNotes(){
+  if(!confirm('Clear all notes for '+day+'?'))return;
+  saveN(day,'');
+  const ta=document.getElementById('nta');if(ta)ta.value='';
+}
+
+function tog(s,bi,ii){
+  const k=ik(s,bi,ii);
+  state[k]=!state[k];saveSt(day,state);
+  const el=document.getElementById('i'+k);if(el)el.classList.toggle('checked',state[k]);
+  const bl=s==='morning'?getMB():getEB(day);
+  const b=bl[bi],bt=b.items.length;
+  const bd=b.items.filter((_,i)=>state[ik(s,bi,i)]).length;
+  const bp=bt?Math.round(bd/bt*100):0;
+  const pf=document.getElementById('bp'+(s==='morning'?'m':'e')+bi);if(pf)pf.style.width=bp+'%';
+  const bb=document.getElementById('bc'+(s==='morning'?'m':'e')+bi);
+  if(bb)bb.classList.toggle('show',bd===bt&&bt>0);
+  const mb=getMB(),eb=getEB(day);
+  const mt=cItems(mb),et=cItems(eb);
+  const md=cDone('morning',mb),ed=cDone('evening',eb);
+  const bm=document.getElementById('bm'),cm=document.getElementById('cm'),tm=document.getElementById('tm');
+  if(bm)bm.style.width=(mt?Math.round(md/mt*100):0)+'%';
+  if(cm)cm.textContent=md+' of '+mt+' complete';
+  if(tm)tm.classList.toggle('complete',md===mt);
+  const be=document.getElementById('be'),ce=document.getElementById('ce'),te=document.getElementById('te');
+  if(be)be.style.width=(et?Math.round(ed/et*100):0)+'%';
+  if(ce)ce.textContent=ed+' of '+et+' complete';
+  if(te)te.classList.toggle('complete',ed===et);
+  const fdb=document.getElementById('fdb');
+  if(fdb)fdb.classList.toggle('show',md===mt&&ed===et);
+}
+
+function renderNav(){
+  document.getElementById('day-nav').innerHTML=DAYS.map(d=>{
+    const s=loadSt(d);const has=Object.values(s).some(Boolean);
+    return`<button class="day-btn${d===day?' active':''}" onclick="sw('${d}')">${d.slice(0,3)}${has?'<span class="dot"></span>':''}</button>`;
+  }).join('');
+}
+
+function sw(d){day=d;state=loadSt(d);renderNav();renderDay(d);}
+
+function resetDay(){
+  if(!confirm('Reset all checklist items for '+day+'?'))return;
+  state={};saveSt(day,state);renderNav();renderDay(day);
+}
+
+function today(){
+  return DAYS[[6,0,1,2,3,4,5][new Date().getDay()]];
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('date-display').textContent=
+    new Date().toLocaleDateString('en-ZA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  day=today();state=loadSt(day);renderNav();renderDay(day);
+});
+</script>
+</body>
+</html>
